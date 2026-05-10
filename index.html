@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogoTrainer — Seu Treinador de Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #222222;
+    --accent: #ff3c00;
+    --accent2: #ffd700;
+    --text: #f0ede8;
+    --muted: #666;
+    --green: #00ff88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .logo-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 10vw, 100px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* STATUS PANEL */
+  .status-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    padding: 20px 28px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    box-shadow: 0 0 12px var(--green);
+  }
+
+  .status-dot.inactive {
+    background: var(--muted);
+    box-shadow: none;
+  }
+
+  .status-dot.pulse { animation: pulse 1.5s infinite; }
+
+  .status-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  .status-text strong { color: var(--green); }
+  .status-text.off strong { color: var(--muted); }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.3s ease both;
+    min-height: 200px;
+  }
+
+  .mission-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200%;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .mission-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mission-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .mission-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .mission-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .detail-chip {
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .detail-chip .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .detail-chip .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  /* TIMER */
+  .timer-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .timer-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .timer-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 72px);
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .timer-display.soon { color: var(--accent2); animation: blink 1s step-end infinite; }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    margin-top: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 1s linear;
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .btn {
+    padding: 18px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-activate {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-activate:hover {
+    background: #ff5522;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255,60,0,0.4);
+  }
+
+  .btn-deactivate {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-deactivate:hover {
+    border-color: var(--muted);
+    color: var(--text);
+  }
+
+  .btn-deactivate:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .btn-send {
+    grid-column: 1 / -1;
+    background: transparent;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    font-size: 16px;
+  }
+
+  .btn-send:hover {
+    background: rgba(255, 215, 0, 0.08);
+    box-shadow: 0 0 20px rgba(255,215,0,0.15);
+  }
+
+  /* EMAIL CONFIG */
+  .config-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.6s ease both;
+  }
+
+  .config-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .email-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--green);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .config-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* LOG */
+  .log-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    animation: fadeUp 0.6s 0.7s ease both;
+  }
+
+  .log-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .log-entries {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .log-entry {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    color: var(--muted);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .log-entry .time { color: var(--accent); flex-shrink: 0; }
+  .log-entry .msg { color: var(--text); }
+  .log-entry.success .msg { color: var(--green); }
+  .log-entry.warn .msg { color: var(--accent2); }
+
+  .empty-log {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 16px 24px;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 320px;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.error { border-color: var(--accent); color: var(--accent); }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--green); }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+
+  @keyframes blink {
+    50% { opacity: 0.3; }
+  }
+
+  /* INACTIVE STATE */
+  .inactive-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,10,10,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .inactive-msg {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .mission-card { position: relative; }
+
+  @media (max-width: 500px) {
+    .controls { grid-template-columns: 1fr; }
+    .btn-send { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="logo-badge">Sistema de Treinamento</div>
+    <h1>LOGO<span>TRAINER</span></h1>
+    <p class="subtitle">// Missões automáticas de design de logo → lazarolapin@gmail.com</p>
+  </header>
+
+  <!-- STATUS -->
+  <div class="status-panel" id="statusPanel">
+    <div class="status-dot inactive" id="statusDot"></div>
+    <div class="status-text off" id="statusText">
+      Status: <strong id="statusLabel">DESATIVADO</strong> — Ative para começar a receber missões a cada 4 horas
+    </div>
+  </div>
+
+  <!-- MISSION CARD -->
+  <div class="mission-card" id="missionCard">
+    <div class="inactive-overlay" id="inactiveOverlay">
+      <span class="inactive-msg">⬡ Aguardando Ativação</span>
+    </div>
+    <div class="mission-label">Missão Atual</div>
+    <div class="mission-title" id="missionTitle">—</div>
+    <div class="mission-details" id="missionDetails"></div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="timer-section">
+    <div class="timer-label">// Próxima missão em</div>
+    <div class="timer-display" id="timerDisplay">04:00:00</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:100%"></div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn btn-activate" id="btnActivate" onclick="activate()">▶ ATIVAR</button>
+    <button class="btn btn-deactivate" id="btnDeactivate" onclick="deactivate()" disabled>■ DESATIVAR</button>
+    <button class="btn btn-send" onclick="sendNow()">↗ ENVIAR MISSÃO AGORA (TESTE)</button>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="config-section">
+    <div class="config-label">// Email de destino</div>
+    <div class="email-display">lazarolapin@gmail.com</div>
+    <div class="config-note">
+      ⚠ Para envio real de email, o site precisa estar hospedado com backend.<br>
+      Atualmente: abre seu cliente de email com a missão preenchida automaticamente.<br>
+      → Copie para um servidor ou use EmailJS para envio automático real.
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-section">
+    <div class="log-header">// Log de missões enviadas</div>
+    <div class="log-entries" id="logEntries">
+      <div class="empty-log">Nenhuma missão enviada ainda.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== BANCO DE MISSÕES =====
+const MISSIONS = [
+  {
+    title: "Logo para Barbearia Retrô",
+    style: "Vintage / Anos 50",
+    palette: "Preto, Vermelho e Creme",
+    formato: "Circular com texto ao redor",
+    extra: "Use navalha ou tesoura como ícone central"
+  },
+  {
+    title: "Logo para Startup de IA",
+    style: "Minimalista / Tech",
+    palette: "Azul elétrico e Branco",
+    formato: "Ícone geométrico + wordmark",
+    extra: "Transmita modernidade e confiança"
+  },
+  {
+    title: "Logo para Pizzaria Napolitana",
+    style: "Rústico / Artesanal",
+    palette: "Vermelho tomate, Verde e Branco",
+    formato: "Badge oval com ilustração de pizza",
+    extra: "Tipografia manuscrita ou serifada italiana"
+  },
+  {
+    title: "Logo para Academia de Jiu-Jitsu",
+    style: "Agressivo / Warrior",
+    palette: "Preto, Dourado e Cinza",
+    formato: "Escudo com kimono ou dragão",
+    extra: "Transmita força, disciplina e arte marcial"
+  },
+  {
+    title: "Logo para Café Especialidade",
+    style: "Editorial / Sofisticado",
+    palette: "Bege, Marrom escuro e Creme",
+    formato: "Wordmark elegante + ícone de xícara",
+    extra: "Lembre um café europeu de alto padrão"
+  },
+  {
+    title: "Logo para Estúdio de Tatuagem",
+    style: "Dark / Alternativo",
+    palette: "Preto, Branco e um toque de vermelho",
+    formato: "Caveira, agulha ou cobra como símbolo",
+    extra: "Visual que transmita arte underground"
+  },
+  {
+    title: "Logo para Loja de Plantas",
+    style: "Orgânico / Natural",
+    palette: "Verde musgo, Terracota e Off-white",
+    formato: "Ícone de folha ou vaso + tipografia suave",
+    extra: "Transmita natureza, cuidado e bem-estar"
+  },
+  {
+    title: "Logo para Agência de Viagens",
+    style: "Aventura / Colorido",
+    palette: "Azul oceano, Laranja e Turquesa",
+    formato: "Avião, bússola ou globo como ícone",
+    extra: "Desperte desejo de explorar o mundo"
+  },
+  {
+    title: "Logo para Cervejaria Artesanal",
+    style: "Craft / Artesanal Industrial",
+    palette: "Dourado, Marrom e Preto",
+    formato: "Barril, lúpulo ou grão de malte",
+    extra: "Visual de produto premium e autêntico"
+  },
+  {
+    title: "Logo para Clínica Veterinária",
+    style: "Amigável / Colorido",
+    palette: "Verde limão, Azul e Branco",
+    formato: "Pata de animal + símbolo de saúde",
+    extra: "Transmita cuidado, amor e confiança"
+  },
+  {
+    title: "Logo para Estúdio de Música",
+    style: "Criativo / Dinâmico",
+    palette: "Roxo profundo, Neon e Preto",
+    formato: "Onda sonora, nota musical ou microfone",
+    extra: "Visual que vibre energia musical"
+  },
+  {
+    title: "Logo para Buffet Infantil",
+    style: "Divertido / Lúdico",
+    palette: "Amarelo, Azul bebê e Rosa",
+    formato: "Personagem animado ou balão",
+    extra: "Tipografia redonda e super amigável"
+  },
+  {
+    title: "Logo para Consultoria Financeira",
+    style: "Sério / Corporativo Premium",
+    palette: "Azul marinho, Dourado e Branco",
+    formato: "Monograma ou ícone geométrico limpo",
+    extra: "Transmita credibilidade e prosperidade"
+  },
+  {
+    title: "Logo para Food Truck de Smash Burger",
+    style: "Street Food / Urbano",
+    palette: "Vermelho, Amarelo e Preto",
+    formato: "Ilustração de hamburger estilizado",
+    extra: "Visual que faça salivar na rua"
+  },
+  {
+    title: "Logo para Escola de Dança",
+    style: "Elegante / Dinâmico",
+    palette: "Rosa choque, Roxo e Branco",
+    formato: "Silhueta de bailarina ou dançarino",
+    extra: "Transmita movimento, ritmo e arte"
+  }
+];
+
+// ===== ESTADO =====
+let isActive = false;
+let timerInterval = null;
+let nextSendTime = null;
+const INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 horas
+
+// ===== MISSÃO ATUAL =====
+let currentMission = null;
+
+function getRandomMission() {
+  const idx = Math.floor(Math.random() * MISSIONS.length);
+  return MISSIONS[idx];
+}
+
+// ===== ATIVAR =====
+function activate() {
+  isActive = true;
+  currentMission = getRandomMission();
+  nextSendTime = Date.now() + INTERVAL_MS;
+
+  updateStatus(true);
+  renderMission(currentMission);
+  startTimer();
+  sendEmail(currentMission, true); // primeira missão imediata
+  addLog(`Sistema ativado. Primeira missão enviada.`, 'success');
+
+  document.getElementById('btnActivate').disabled = true;
+  document.getElementById('btnDeactivate').disabled = false;
+  document.getElementById('inactiveOverlay').style.display = 'none';
+
+  showToast('✓ Treinamento ativado! Primeira missão enviada.', false);
+}
+
+// ===== DESATIVAR =====
+function deactivate() {
+  isActive = false;
+  clearInterval(timerInterval);
+  timerInterval = null;
+  nextSendTime = null;
+
+  updateStatus(false);
+  document.getElementById('timerDisplay').textContent = '04:00:00';
+  document.getElementById('timerDisplay').className = 'timer-display';
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('btnActivate').disabled = false;
+  document.getElementById('btnDeactivate').disabled = true;
+  document.getElementById('inactiveOverlay').style.display = 'flex';
+
+  addLog('Sistema desativado.', 'warn');
+  showToast('■ Treinamento desativado.', false);
+}
+
+// ===== ENVIAR AGORA =====
+function sendNow() {
+  const m = getRandomMission();
+  sendEmail(m, false);
+  addLog(`Missão de teste enviada: "${m.title}"`, 'success');
+  showToast('↗ Abrindo email com missão de teste...', false);
+}
+
+// ===== RENDER MISSÃO =====
+function renderMission(m) {
+  document.getElementById('missionTitle').textContent = m.title;
+  document.getElementById('missionDetails').innerHTML = `
+    <div class="detail-chip">
+      <div class="label">Estilo</div>
+      <div class="value">${m.style}</div>
+    </div>
+    <div class="detail-chip">
+      <div class="label">Paleta</div>
+      <div class="value">${m.palette}</div>
+    </div>
+    <div class="detail-chip">
+      <div class="label">Formato</div>
+      <div class="value">${m.formato}</div>
+    </div>
+    <div class="detail-chip" style="grid-column:1/-1">
+      <div class="label">Dica Extra</div>
+      <div class="value" style="color:var(--text);font-weight:400;font-size:13px">${m.extra}</div>
+    </div>
+  `;
+}
+
+// ===== TIMER =====
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  function tick() {
+    if (!isActive) return;
+    const remaining = nextSendTime - Date.now();
+
+    if (remaining <= 0) {
+      // Nova missão!
+      currentMission = getRandomMission();
+      nextSendTime = Date.now() + INTERVAL_MS;
+      renderMission(currentMission);
+      sendEmail(currentMission, false);
+      addLog(`Nova missão enviada: "${currentMission.title}"`, 'success');
+      showToast('🎯 Nova missão de logo enviada!', false);
+    }
+
+    const clamp = Math.max(0, remaining);
+    const h = Math.floor(clamp / 3600000).toString().padStart(2, '0');
+    const m = Math.floor((clamp % 3600000) / 60000).toString().padStart(2, '0');
+    const s = Math.floor((clamp % 60000) / 1000).toString().padStart(2, '0');
+    document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
+
+    const pct = (clamp / INTERVAL_MS) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    // Muda cor quando menos de 5 min
+    if (clamp < 5 * 60 * 1000) {
+      document.getElementById('timerDisplay').className = 'timer-display soon';
+    } else {
+      document.getElementById('timerDisplay').className = 'timer-display';
+    }
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+// ===== EMAIL =====
+function sendEmail(mission, isFirst) {
+  const subject = encodeURIComponent(`🎯 LogoTrainer — Nova Missão: ${mission.title}`);
+  const body = encodeURIComponent(
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LOGOTRAINER — MISSÃO DE DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 BRIEFING: ${mission.title}
+
+🎨 ESTILO: ${mission.style}
+🖌️ PALETA DE CORES: ${mission.palette}
+📐 FORMATO: ${mission.formato}
+💡 DICA: ${mission.extra}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRAZO: Você tem até a próxima missão (4 horas)
+Foco total. Sem desculpa. Só resultado.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Enviado por LogoTrainer · ${new Date().toLocaleString('pt-BR')}
+`);
+
+  window.open(`mailto:lazarolapin@gmail.com?subject=${subject}&body=${body}`, '_blank');
+}
+
+// ===== STATUS =====
+function updateStatus(active) {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  const label = document.getElementById('statusLabel');
+  const panel = document.getElementById('statusPanel');
+
+  if (active) {
+    dot.className = 'status-dot pulse';
+    text.className = 'status-text';
+    label.textContent = 'ATIVO';
+    panel.style.borderLeftColor = 'var(--green)';
+    label.style.color = 'var(--green)';
+  } else {
+    dot.className = 'status-dot inactive';
+    text.className = 'status-text off';
+    label.textContent = 'DESATIVADO';
+    panel.style.borderLeftColor = 'var(--border)';
+    label.style.color = 'var(--muted)';
+  }
+}
+
+// ===== LOG =====
+function addLog(msg, type) {
+  const container = document.getElementById('logEntries');
+  const emptyEl = container.querySelector('.empty-log');
+  if (emptyEl) emptyEl.remove();
+
+  const now = new Date().toLocaleTimeString('pt-BR');
+  const el = document.createElement('div');
+  el.className = `log-entry ${type || ''}`;
+  el.innerHTML = `<span class="time">${now}</span><span class="msg">${msg}</span>`;
+  container.insertBefore(el, container.firstChild);
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+</script>
+</body>
+</html>
