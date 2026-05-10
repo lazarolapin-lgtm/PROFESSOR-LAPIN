@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lapin Logo Trainer</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#050505;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:700px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    border-radius:25px;
+    padding:30px;
+    box-shadow:0 0 40px rgba(0,0,0,0.5);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+    font-size:35px;
+}
+
+.sub{
+    text-align:center;
+    color:#999;
+    margin-bottom:30px;
+}
+
+.box{
+    background:#111;
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:20px;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+h2{
+    color:#00d9ff;
+    margin-bottom:15px;
+}
+
+.info{
+    line-height:1.8;
+    font-size:18px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    font-size:17px;
+    font-weight:bold;
+    margin-top:15px;
+    transition:0.3s;
+}
+
+.start{
+    background:#00d9ff;
+    color:black;
+}
+
+.stop{
+    background:#ff2a2a;
+    color:white;
+}
+
+button:hover{
+    transform:scale(1.03);
+}
+
+.status{
+    text-align:center;
+    margin-top:20px;
+    color:#00ff88;
+    font-size:18px;
+}
+
+footer{
+    margin-top:25px;
+    text-align:center;
+    color:#666;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>LAPIN LOGO TRAINER</h1>
+<p class="sub">Treinador automático de criação de logotipos</p>
+
+<div class="box">
+<h2>Pedido Atual</h2>
+
+<div class="info">
+<p><strong>Empresa:</strong> <span id="empresa">---</span></p>
+<p><strong>Estilo:</strong> <span id="estilo">---</span></p>
+<p><strong>Cores:</strong> <span id="cores">---</span></p>
+<p><strong>Objetivo:</strong> <span id="objetivo">---</span></p>
+</div>
+
+<button class="start" onclick="gerarPedido()">
+GERAR NOVO PEDIDO
+</button>
+
+<button class="start" onclick="ativarTreino()">
+ATIVAR TREINO AUTOMÁTICO
+</button>
+
+<button class="stop" onclick="desativarTreino()">
+DESATIVAR
+</button>
+
+<div class="status" id="status">
+Treino desligado
+</div>
+
+</div>
+
+<footer>
+Email conectado: lazarolapin@gmail.com
+</footer>
+
+</div>
+
+<script>
+
+const empresas = [
+"CyberTech",
+"Nova Studio",
+"Urban Vision",
+"Black Coffee",
+"Pixel Wave",
+"Future Cars",
+"King Barber",
+"Night Club",
+"Luxury Fashion",
+"Dragon Games",
+"Blue Energy",
+"Space Burger"
+];
+
+const estilos = [
+"Minimalista",
+"Luxuoso",
+"Cyberpunk",
+"Vintage",
+"Futurista",
+"Elegante",
+"Dark",
+"Neon Azul",
+"3D",
+"Moderno"
+];
+
+const cores = [
+"Preto e Branco",
+"Azul Neon",
+"Vermelho Escuro",
+"Dourado",
+"Verde Limão",
+"Roxo Neon",
+"Branco e Prata",
+"Preto Fosco"
+];
+
+const objetivos = [
+"Marca premium",
+"Loja moderna",
+"Empresa gamer",
+"Startup futurista",
+"Loja de roupas",
+"Canal do YouTube",
+"Aplicativo",
+"Empresa de tecnologia",
+"Hamburgueria",
+"Studio criativo"
+];
+
+let intervalo = null;
+
+function gerarPedido(){
+
+    const empresa = empresas[Math.floor(Math.random()*empresas.length)];
+    const estilo = estilos[Math.floor(Math.random()*estilos.length)];
+    const cor = cores[Math.floor(Math.random()*cores.length)];
+    const objetivo = objetivos[Math.floor(Math.random()*objetivos.length)];
+
+    document.getElementById("empresa").innerText = empresa;
+    document.getElementById("estilo").innerText = estilo;
+    document.getElementById("cores").innerText = cor;
+    document.getElementById("objetivo").innerText = objetivo;
+
+    enviarEmail(empresa, estilo, cor, objetivo);
+}
+
+function ativarTreino(){
+
+    gerarPedido();
+
+    intervalo = setInterval(() => {
+        gerarPedido();
+    }, 14400000);
+
+    document.getElementById("status").innerText =
+    "Treino automático ATIVADO";
+}
+
+function desativarTreino(){
+
+    clearInterval(intervalo);
+
+    document.getElementById("status").innerText =
+    "Treino DESATIVADO";
+}
+
+function enviarEmail(empresa, estilo, cor, objetivo){
+
+    const assunto = encodeURIComponent("NOVO DESAFIO DE LOGOTIPO");
+    
+    const mensagem = encodeURIComponent(
+`Novo desafio para treino:
+
+Empresa: ${empresa}
+
+Estilo: ${estilo}
+
+Cores: ${cor}
+
+Objetivo: ${objetivo}
+
+Crie esse logotipo agora.
+`);
+
+window.open(
+`mailto:lazarolapin@gmail.com?subject=${assunto}&body=${mensagem}`
+);
+
+}
+
+</script>
+
+</body>
+</html>
